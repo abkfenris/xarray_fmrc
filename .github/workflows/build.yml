@@ -1,42 +1,37 @@
-name: build
+name: Tests
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches: [main]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.9", "3.10"]
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2.2.2
+
+      - name: Setup Micromamba
+        uses: mamba-org/provision-with-micromamba@main
         with:
-          python-version: ${{ matrix.python-version }}
+          environment-file: false
 
-      - name: Install poetry
-        run: make poetry-download
-
-      - name: Set up cache
-        uses: actions/cache@v3.2.2
-        with:
-          path: .venv
-          key: venv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
-      - name: Install dependencies
+      - name: Python ${{ matrix.python-version }}
+        shell: bash -l {0}
         run: |
-          poetry config virtualenvs.in-project true
-          poetry install
+          micromamba create --name TEST python=${{ matrix.python-version }} --file requirements.txt --file requirements-dev.txt --channel conda-forge
+          micromamba activate TEST
+          pip install -e . --no-deps --force-reinstall
+          micromamba info --all
+          micromamba list
 
-      - name: Run style checks
+      - name: Tests
+        shell: bash -l {0}
         run: |
-          make check-codestyle
-
-      - name: Run tests
-        run: |
-          make test
-
-      - name: Run safety checks
-        run: |
-          make check-safety
+          micromamba activate TEST
+          pytest -rxs --cov=xpublish_edr tests

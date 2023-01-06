@@ -39,7 +39,7 @@ def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
 
         dt_dict[path] = ds
 
-    dt_dict["/"] = xr.Dataset(
+    root_ds = xr.Dataset(
         {
             "model_run_path": xr.DataArray(
                 model_run_paths,
@@ -52,5 +52,8 @@ def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
             "constant_offset": pd.Series(list(constant_offsets)).sort_values(),
         },
     )
+    root_ds = root_ds.sortby("forecast_reference_time")
+
+    dt_dict["/"] = root_ds
 
     return datatree.DataTree.from_dict(dt_dict)
