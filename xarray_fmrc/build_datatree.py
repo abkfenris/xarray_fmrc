@@ -1,11 +1,21 @@
 """Build a forecast datatree from datasets"""
-from typing import Set
+from typing import TYPE_CHECKING, Set
 
 from collections.abc import Iterable
 
 import datatree
 import pandas as pd
 import xarray as xr
+
+if TYPE_CHECKING:
+    from pandas.core.tools.datetimes import DatetimeScalar
+
+
+def model_run_path(from_dt: DatetimeScalar) -> str:
+    """Return the model run path given a datetime-like input"""
+    dt = pd.to_datetime(from_dt)
+
+    return f"model_run/{dt.isoformat()}"
 
 
 def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
@@ -23,7 +33,7 @@ def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
 
     for ds in datasets:
         forecast_reference_time = pd.Timestamp(ds["forecast_reference_time"].item())
-        path = f"model_run/{forecast_reference_time.isoformat()}"
+        path = model_run_path(forecast_reference_time)
 
         ds_times = ds["time"].to_numpy()
 

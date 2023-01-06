@@ -27,7 +27,7 @@ jobs:
           micromamba create --name TEST python=${{ matrix.python-version }} --file requirements.txt --file requirements-dev.txt --channel conda-forge
           && micromamba activate TEST
           && pip install -e . --no-deps --force-reinstall
-          && micromamba info --all
+          && micromamba info
           && micromamba list
 
       - name: Tests

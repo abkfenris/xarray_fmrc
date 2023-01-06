@@ -108,8 +108,6 @@ DataTree('None', parent=None)
                 geospatial_bounds:               POLYGON ((-60.0401646729857816 27.030551...
 ```
 
-_everything below are just ideas at this point_
-
 ## Forecast views
 
 ![Forecast Model Run Collections](https://docs.unidata.ucar.edu/netcdf-java/current/userguide/images/netcdf-java/tutorial/feature_types/fmrc.png)
@@ -117,6 +115,9 @@ _everything below are just ideas at this point_
 The various views are explained in more detail below, but each has a method on the `.fmrc` accessor that returns a dataset.
 
 - `dt.fmrc.model_run(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
+
+_everything below are just ideas at this point_
+
 - `dt.fmrc.constant_forecast(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 - `dt.fmrc.constant_offset(offset: str | datetime.timedelta | pd.TimeOffset?) -> xr.Dataset`
 - `dt.fmrc.best() -> xr.Dataset`
