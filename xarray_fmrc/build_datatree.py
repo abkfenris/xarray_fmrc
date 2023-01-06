@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from pandas.core.tools.datetimes import DatetimeScalar
 
 
-def model_run_path(from_dt: DatetimeScalar) -> str:
+def model_run_path(from_dt: "DatetimeScalar") -> str:
     """Return the model run path given a datetime-like input"""
     dt = pd.to_datetime(from_dt)
 

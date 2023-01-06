@@ -25,7 +25,7 @@ class FmrcAccessor:
     def __init__(self, datatree_obj: datatree.DataTree):
         self.datatree_obj = datatree_obj
 
-    def model_run(self, dt: DatetimeScalar) -> xr.Dataset:
+    def model_run(self, dt: "DatetimeScalar") -> xr.Dataset:
         """Get the dataset for a single model run
 
         Accepts valid to `pd.to_datetime()`
@@ -35,7 +35,7 @@ class FmrcAccessor:
 
         return self.datatree_obj[path].ds
 
-    def constant_forecast(self, dt: DatetimeScalar) -> xr.Dataset:
+    def constant_forecast(self, dt: "DatetimeScalar") -> xr.Dataset:
         """
         Returns a dataset for a single time, from all forecast model runs.
 

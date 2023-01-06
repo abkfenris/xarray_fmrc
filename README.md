@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Build status](https://github.com/abkfenris/xarray-fmrc/workflows/build/badge.svg?branch=master&event=push)](https://github.com/abkfenris/xarray-fmrc/actions?query=workflow%3Abuild)
+[![Tests](https://github.com/abkfenris/xarray_fmrc/actions/workflows/build.yml/badge.svg)](https://github.com/abkfenris/xarray_fmrc/actions/workflows/build.yml)
 [![Python Version](https://img.shields.io/pypi/pyversions/xarray-fmrc.svg)](https://pypi.org/project/xarray-fmrc/)
 [![Dependencies Status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](https://github.com/abkfenris/xarray-fmrc/pulls?utf8=%E2%9C%93&q=is%3Apr%20author%3Aapp%2Fdependabot)
 
@@ -11,7 +11,6 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/abkfenris/xarray-fmrc/blob/master/.pre-commit-config.yaml)
 [![Semantic Versions](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--versions-e10079.svg)](https://github.com/abkfenris/xarray-fmrc/releases)
 [![License](https://img.shields.io/github/license/abkfenris/xarray-fmrc)](https://github.com/abkfenris/xarray-fmrc/blob/master/LICENSE)
-![Coverage Report](assets/images/coverage.svg)
 
 Xarray-FMCR uses Xarray datatrees to provide a standard in-memory and storage representation of [Forecast Model Run Collections](http://www.unidata.ucar.edu/staff/caron/presentations/FmrcPoster.pdf) that can then be access via the various forecast views (best estimate/constant offset/constant time/model run).
 
@@ -116,7 +115,7 @@ The various views are explained in more detail below, but each has a method on t
 
 - `dt.fmrc.model_run(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 
-_everything below are just ideas at this point_
+_everything below are just ideas or placeholders at this point_
 
 - `dt.fmrc.constant_forecast(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 - `dt.fmrc.constant_offset(offset: str | datetime.timedelta | pd.TimeOffset?) -> xr.Dataset`
