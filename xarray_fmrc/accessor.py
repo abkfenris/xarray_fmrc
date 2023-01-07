@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Union
 from datetime import timedelta
 
 import datatree
+import pandas as pd
 import xarray as xr
 
 from .build_datatree import model_run_path
@@ -51,7 +52,19 @@ class FmrcAccessor:
         Accepts inputs to `pd.to_timedelta()`
         https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_timedelta.html
         """
-        raise NotImplementedError
+        td = pd.to_timedelta(offset)
+
+        filtered_ds = []
+
+        for child in self.datatree_obj["model_run"].children.values():
+            ds = child.ds
+
+            selected = ds.sel(time=ds["forecast_offset"] == td)
+            filtered_ds.append(selected)
+
+        combined = xr.concat(filtered_ds, "time")
+        combined = combined.sortby("time")
+        return combined
 
     def best(self) -> xr.Dataset:
         """

@@ -10,6 +10,9 @@ import xarray as xr
 if TYPE_CHECKING:
     from pandas.core.tools.datetimes import DatetimeScalar
 
+from .forecast_offsets import with_offsets
+from .forecast_reference_time import forecast_ref_time
+
 
 def model_run_path(from_dt: "DatetimeScalar") -> str:
     """Return the model run path given a datetime-like input"""
@@ -32,7 +35,9 @@ def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
     dt_dict = {}
 
     for ds in datasets:
-        forecast_reference_time = pd.Timestamp(ds["forecast_reference_time"].item())
+        ds = with_offsets(ds)
+
+        forecast_reference_time = forecast_ref_time(ds)
         path = model_run_path(forecast_reference_time)
 
         ds_times = ds["time"].to_numpy()
@@ -42,9 +47,7 @@ def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
         model_run_paths.append(path)
         forecast_reference_times.append(forecast_reference_time)
 
-        td = ds["time"] - ds["forecast_reference_time"]
-        td = pd.to_timedelta(td.to_series())
-
+        td = pd.to_timedelta(ds["forecast_offset"].to_series())
         constant_offsets = constant_offsets.union(set(td))
 
         dt_dict[path] = ds
