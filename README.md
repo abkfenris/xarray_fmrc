@@ -94,10 +94,10 @@ The various views are explained in more detail below, but each has a method on t
 
 - `dt.fmrc.model_run(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 - `dt.fmrc.constant_offset(offset: str | datetime.timedelta | pd.TimeOffset?) -> xr.Dataset`
+- `dt.fmrc.constant_forecast(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 
 _everything below are just ideas or placeholders at this point_
 
-- `dt.fmrc.constant_forecast(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 - `dt.fmrc.best() -> xr.Dataset`
 
 ## Kerchunk

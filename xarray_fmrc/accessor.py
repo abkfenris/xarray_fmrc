@@ -43,7 +43,18 @@ class FmrcAccessor:
         Accepts valid to `pd.to_datetime()`
         https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html
         """
-        raise NotImplementedError
+        filtered_ds = []
+
+        for child in self.datatree_obj["model_run"].children.values():
+            try:
+                selected = child.ds.sel(time=dt)
+                filtered_ds.append(selected)
+            except KeyError:
+                pass
+
+        combined = xr.concat(filtered_ds, "forecast_reference_time")
+        combined = combined.sortby("forecast_reference_time")
+        return combined
 
     def constant_offset(self, offset: Union[str, int, float, timedelta]) -> xr.Dataset:
         """
@@ -52,15 +63,16 @@ class FmrcAccessor:
         Accepts inputs to `pd.to_timedelta()`
         https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_timedelta.html
         """
-        td = pd.to_timedelta(offset)
+        timedelta = pd.to_timedelta(offset)
 
         filtered_ds = []
 
         for child in self.datatree_obj["model_run"].children.values():
-            ds = child.ds
-
-            selected = ds.sel(time=ds["forecast_offset"] == td)
-            filtered_ds.append(selected)
+            try:
+                selected = child.ds.sel(forecast_offset=timedelta)
+                filtered_ds.append(selected)
+            except KeyError:
+                pass
 
         combined = xr.concat(filtered_ds, "time")
         combined = combined.sortby("time")
