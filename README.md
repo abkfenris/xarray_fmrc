@@ -95,16 +95,17 @@ The various views are explained in more detail below, but each has a method on t
 - `dt.fmrc.model_run(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
 - `dt.fmrc.constant_offset(offset: str | datetime.timedelta | pd.TimeOffset?) -> xr.Dataset`
 - `dt.fmrc.constant_forecast(dt: str | datetime.datetime | pd.Timestamp) -> xr.Dataset`
-
-_everything below are just ideas or placeholders at this point_
-
 - `dt.fmrc.best() -> xr.Dataset`
 
-## Kerchunk
+## A few ideas
+
+Here are some things that aren't implemented, but where this library could go.
+
+### Kerchunk
 
 Kerchunk has the ability to break down [chunks into smaller chunks](https://fsspec.github.io/kerchunk/reference.html#kerchunk.utils.subchunk). Xarray-FMRC could provide utilities to take a collection of kerchunk files, break them apart, and rebuild them in the various FMRC views.
 
-## Xpublish-FMRC
+### Xpublish-FMRC
 
 Xpublish-FMRC provides new endpoints for xpublish servers to serve forecast model run collections.
 

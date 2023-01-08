@@ -11,6 +11,7 @@ import pandas as pd
 import xarray as xr
 
 from .build_datatree import model_run_path
+from .forecast_reference_time import forecast_ref_time
 
 if TYPE_CHECKING:
     from pandas.core.tools.datetimes import DatetimeScalar
@@ -43,11 +44,12 @@ class FmrcAccessor:
         Accepts valid to `pd.to_datetime()`
         https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.to_datetime.html
         """
+        datetime = pd.to_datetime(dt)
         filtered_ds = []
 
         for child in self.datatree_obj["model_run"].children.values():
             try:
-                selected = child.ds.sel(time=dt)
+                selected = child.ds.sel(time=datetime)
                 filtered_ds.append(selected)
             except KeyError:
                 pass
@@ -82,4 +84,33 @@ class FmrcAccessor:
         """
         Returns a dataset with the best possible forecast data.
         """
-        raise NotImplementedError
+        forecast_coords = ["forecast_reference_time", "forecast_offset"]
+
+        forecast_times = self.datatree_obj["forecast_reference_time"].sortby(
+            "forecast_reference_time",
+            ascending=False,
+        )
+
+        dataset: xr.Dataset = None
+
+        for t in forecast_times:
+            ft = forecast_ref_time(t)
+
+            ds = self.datatree_obj[f"model_run/{ft.isoformat()}"].ds
+            ds = (
+                ds.drop_indexes(forecast_coords).reset_coords(forecast_coords).squeeze()
+            )
+
+            if dataset is None:
+                dataset = ds
+            else:
+                existing_times = set(dataset["time"].to_numpy())
+                new_times = set(ds["time"].to_numpy())
+                unique_times = new_times.difference(existing_times)
+
+                ds = ds.where(ds["time"].isin(list(unique_times)))
+
+                dataset = xr.concat([dataset, ds], "time")
+
+        dataset = dataset.sortby("time")
+        return dataset
