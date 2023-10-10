@@ -1,7 +1,5 @@
 """Build a forecast datatree from datasets"""
-from typing import TYPE_CHECKING, Set
-
-from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import datatree
 import pandas as pd
@@ -10,63 +8,58 @@ import xarray as xr
 if TYPE_CHECKING:
     from pandas.core.tools.datetimes import DatetimeScalar
 
-from .forecast_offsets import with_offsets
-from .forecast_reference_time import forecast_ref_time
+from . import constants
 
 
-def model_run_path(from_dt: "DatetimeScalar") -> str:
-    """Return the model run path given a datetime-like input"""
+def model_run_path(
+    from_dt: "DatetimeScalar",
+    group_prefix: str = constants.DEFAULT_GROUP_PREFIX,
+    time_format: str = constants.DEFAULT_TIME_FORMAT,
+) -> str:
+    """Return the model run path given a datetime-like input of forecast_reference_time"""
     dt = pd.to_datetime(from_dt)
 
-    return f"model_run/{dt.isoformat()}"
+    return f"{group_prefix}{dt.strftime(time_format)}"
 
 
-def from_model_runs(datasets: Iterable[xr.Dataset]) -> datatree.DataTree:
-    """Build a datatree from a collection of Xarray Datasets
+def forecast_reference_time_from_path(
+    path: str,
+    group_prefix: str = constants.DEFAULT_GROUP_PREFIX,
+    time_format: str = constants.DEFAULT_TIME_FORMAT,
+) -> pd.Timestamp:
+    """Return the datasets forecast reference time based on it's path"""
+    dt_str = path.removeprefix(f"/{group_prefix}")
+    return pd.to_datetime(dt_str, format=time_format)
 
-    Datasets are expected to have a single forecast_reference_time
-    as a coordinate.
-    """
-    model_run_paths = []
-    forecast_reference_times = []
-    constant_forecast_times: Set[pd.Timestamp] = set()
-    constant_offsets: Set[pd.Timedelta] = set()
 
-    dt_dict = {}
+def from_dict(
+    datasets: Dict["DatetimeScalar", xr.Dataset],
+    group_prefix: str = constants.DEFAULT_GROUP_PREFIX,
+    time_format: str = constants.DEFAULT_TIME_FORMAT,
+    time_coord: Optional[str] = None,
+    forecast_coords: Optional[List[str]] = None,
+    tree_attrs: Optional[dict[str, Any]] = None,
+) -> datatree.DataTree:
+    """Build a datatree from a dictionary of forecast reference times to datasets"""
+    path_dict = {}
+    for dt, ds in datasets.items():
+        path = model_run_path(dt, group_prefix, time_format)
+        path_dict[path] = ds
 
-    for ds in datasets:
-        ds = with_offsets(ds)
+    tree = datatree.DataTree.from_dict(path_dict)
 
-        forecast_reference_time = forecast_ref_time(ds)
-        path = model_run_path(forecast_reference_time)
+    if tree_attrs is None:
+        tree_attrs = {}
 
-        ds_times = ds["time"].to_numpy()
+    tree_attrs[constants.DT_ATTR_GROUP_PREFIX] = group_prefix
+    tree_attrs[constants.DT_ATTR_TIME_FORMAT] = time_format
 
-        constant_forecast_times = constant_forecast_times.union(set(ds_times))
+    if time_coord:
+        tree_attrs[constants.DT_ATTR_TIME_COORD] = time_coord
 
-        model_run_paths.append(path)
-        forecast_reference_times.append(forecast_reference_time)
+    if forecast_coords:
+        tree_attrs[constants.DT_ATTR_FORECAST_COORDS] = forecast_coords
 
-        td = pd.to_timedelta(ds["forecast_offset"].to_series())
-        constant_offsets = constant_offsets.union(set(td))
+    tree.attrs = tree_attrs
 
-        dt_dict[path] = ds
-
-    root_ds = xr.Dataset(
-        {
-            "model_run_path": xr.DataArray(
-                model_run_paths,
-                dims=["forecast_reference_time"],
-                coords={"forecast_reference_time": forecast_reference_times},
-            ),
-        },
-        coords={
-            "constant_forecast": pd.Series(list(constant_forecast_times)).sort_values(),
-            "constant_offset": pd.Series(list(constant_offsets)).sort_values(),
-        },
-    )
-    root_ds = root_ds.sortby("forecast_reference_time")
-
-    dt_dict["/"] = root_ds
-
-    return datatree.DataTree.from_dict(dt_dict)
+    return tree
