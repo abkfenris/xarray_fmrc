@@ -158,7 +158,7 @@ class FmrcAccessor:
                 new_times = set(ds[self.time_coord].to_numpy())
                 unique_times = new_times.difference(existing_times)
 
-                ds = ds.where(ds[self.time_coord].isin(list(unique_times)))
+                ds = ds.sel({self.time_coord: sorted(unique_times)})
 
                 dataset = xr.concat([dataset, ds], self.time_coord)
 
