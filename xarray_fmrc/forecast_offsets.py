@@ -24,7 +24,7 @@ def with_offsets(
     time_coord: str = constants.DEFAULT_TIME_COORD,
 ) -> xr.Dataset:
     """Add forecast offset as a dimensionless coordinate"""
-    offsets = calc_offsets(ds)
+    offsets = calc_offsets(ds, time_coord=time_coord)
 
     ds = ds.assign_coords({"forecast_offset": (time_coord, offsets)})
     ds = ds.set_xindex("forecast_offset")
