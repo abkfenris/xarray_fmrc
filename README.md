@@ -150,3 +150,16 @@ The selected example here is for the 6 hour offset using forecast from the runs 
 For each forecast time in the collection, the best estimate for that hour is used to create the __best estimate__ dataset, which covers the entire time range of the collection.
 
 For this example, the best estimate is the 0 hour analysis from each run, plus all the forecasts from the latest run.
+
+## Development
+
+Using your favorite python environment checkout and install xarray_fmrc
+
+```console
+git clone git@github.com:abkfenris/xarray_fmrc.git
+cd xarray_fmrc
+pip install -e .
+pytest .
+```
+
+TODO: Add more extensive development instructions
